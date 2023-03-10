@@ -1,0 +1,10 @@
+---
+
+- hosts: nextcloud-server
+  tasks:
+    - name: Update all packages to the newest version
+      apt:
+        update_cache: yes
+        name: "*"
+        state: latest
+  become: yes
