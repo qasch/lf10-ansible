@@ -1,0 +1,49 @@
+---
+
+- hosts: nextcloud-server
+  become: yes
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    target_directory: /srv/docker/nextcloud
+
+  tasks:
+    - name: Install docker from standard repositories
+      apt:
+        update_cache: yes
+        name: ['docker', 'containerd', 'docker.io', 'runc']
+        state: latest
+          
+    - name: Install docker-compose from standard repositories
+      apt:
+        update_cache: yes
+        name: docker-compose
+        state: latest
+
+    - name: Create target directories for containers
+      file:
+        path: '{{ target_directory }}'
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Copy docker-compose.yml to target directory
+      copy:
+        src: files/docker-compose.yml
+        dest: '{{ target_directory }}'
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Copy nginx.conf to target directory
+      copy:
+        src: files/nginx.conf
+        dest: '{{ target_directory }}'
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Start containers with docker-compose up -d
+      shell:
+        chdir: '{{ target_directory }}' 
+        cmd: docker-compose up -d
